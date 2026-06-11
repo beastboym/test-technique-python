@@ -1,6 +1,7 @@
 from __future__ import annotations
 import enum
 from datetime import datetime
+from typing import Optional
 from sqlalchemy import DateTime, Enum, ForeignKey, Index, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -36,7 +37,7 @@ class Intervention(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
-    ended_at: Mapped[datetime | None] = mapped_column(
+    ended_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True)
 
     antenna: Mapped["Antenna"] = relationship(

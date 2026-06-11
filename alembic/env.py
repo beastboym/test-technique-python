@@ -3,14 +3,17 @@ import os
 from logging.config import fileConfig
 
 from alembic import context
+from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.core.database import Base
 from app.models import antenna, intervention  # noqa: F401
 
+load_dotenv()
+
 config = context.config
 
-# Override sqlalchemy.url with DATABASE_URL env var when running in Docker
+# Override sqlalchemy.url with DATABASE_URL from env or .env file
 if database_url := os.environ.get("DATABASE_URL"):
     config.set_main_option("sqlalchemy.url", database_url)
 
