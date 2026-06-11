@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,8 +10,8 @@ from app.schemas.antenna import AntennaOut, PaginatedAntennas
 
 async def list_antennas(
     db: AsyncSession,
-    city: str | None,
-    status: AntennaStatus | None,
+    city: Optional[str],
+    status: Optional[AntennaStatus],
     limit: int,
     offset: int,
 ) -> PaginatedAntennas:
