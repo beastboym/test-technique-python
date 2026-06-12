@@ -105,8 +105,10 @@ L'antenne passe automatiquement à `DOWN`.
 
 ### Clôturer une intervention (route protégée)
 
+Utilisez l'`id` renvoyé par le `POST` précédent (`2` en suivant ce déroulé — l'intervention `1` est celle du seed, déjà clôturée) :
+
 ```bash
-curl -X PATCH http://localhost:8000/api/v1/intervention/1/close \
+curl -X PATCH http://localhost:8000/api/v1/intervention/2/close \
   -H "Authorization: Bearer changeme-super-secret-key"
 ```
 
