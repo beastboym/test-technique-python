@@ -17,7 +17,7 @@ API REST de pilotage du réseau mobile : gestion des antennes et des interventio
 docker-compose up --build
 ```
 
-L'application démarre sur **http://localhost:8000**. Les migrations Alembic s'exécutent automatiquement au démarrage.
+L'application démarre sur **http://localhost:8000**. Les migrations Alembic et le seed de données de démonstration (5 antennes) s'exécutent automatiquement au démarrage — les exemples curl ci-dessous fonctionnent donc immédiatement.
 
 Documentation interactive : **http://localhost:8000/docs**
 
@@ -40,7 +40,10 @@ cp .env.example .env
 # 4. Appliquer les migrations
 alembic upgrade head
 
-# 5. Démarrer l'API
+# 5. Insérer les données de démonstration
+python3 -m app.seed
+
+# 6. Démarrer l'API
 uvicorn app.main:app --reload
 ```
 
@@ -48,10 +51,10 @@ uvicorn app.main:app --reload
 
 ## Variables d'environnement
 
-| Variable       | Exemple                                                        | Description                  |
-|----------------|----------------------------------------------------------------|------------------------------|
-| `DATABASE_URL` | `postgresql+asyncpg://postgres:postgres@localhost:5432/antennas` | URL de connexion PostgreSQL  |
-| `API_KEY`      | `changeme-super-secret-key`                                    | Clé d'authentification API   |
+| Variable       | Exemple                                                          | Description                 |
+| -------------- | ---------------------------------------------------------------- | --------------------------- |
+| `DATABASE_URL` | `postgresql+asyncpg://postgres:postgres@localhost:5432/antennas` | URL de connexion PostgreSQL |
+| `API_KEY`      | `changeme-super-secret-key`                                      | Clé d'authentification API  |
 
 ---
 
@@ -130,11 +133,13 @@ curl -X POST http://localhost:8000/api/v1/intervention \
 La protection contre la double intervention active repose sur deux mécanismes complémentaires :
 
 1. **Index partiel unique PostgreSQL** (défense au niveau base) :
+
    ```sql
    CREATE UNIQUE INDEX uq_one_active_intervention
    ON interventions (antenna_id)
    WHERE ended_at IS NULL;
    ```
+
    Cet index garantit qu'une seule ligne avec `ended_at IS NULL` peut exister par `antenna_id`. Même en cas de requêtes concurrentes atteignant simultanément la base, PostgreSQL rejette la seconde insertion avec une `IntegrityError`. C'est le filet de sécurité ultime, indépendant du code applicatif.
 
 2. **`SELECT ... FOR UPDATE`** (défense au niveau applicatif) :
